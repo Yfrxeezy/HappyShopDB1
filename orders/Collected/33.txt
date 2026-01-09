@@ -1,0 +1,12 @@
+Order ID: 33 
+State: Collected
+OrderedDateTime: 2026-01-08 11:23:48 
+ProgressingDateTime: 2026-01-08 11:23:49
+CollectedDateTime: 2026-01-08 11:23:50
+Items:
+ 0001    40 inch TV         (16) £4304.00
+ 0003    Toaster            (32) £ 639.68
+ 0004    Watch              (16) £ 479.84
+--------------------------------------------
+ Total                               £5423.52
+

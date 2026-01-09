@@ -1,0 +1,13 @@
+----------------------------------------------------------------
+Tue Dec 16 11:06:45 GMT 2025:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.16.1.1 - (1901046): instance a816c00e-019b-26d7-583e-00000afd9e80 
+on database directory C:\Users\jp1648\OneDrive - University of Brighton\HappyShop\happyShopDB with class loader jdk.internal.loader.ClassLoaders$AppClassLoader@5674cd4d 
+Loaded from file:/C:/Users/jp1648/.m2/repository/org/apache/derby/derby/10.16.1.1/derby-10.16.1.1.jar
+java.vendor=Oracle Corporation
+java.runtime.version=24.0.1+9-30
+user.dir=C:\Users\jp1648\OneDrive - University of Brighton\HappyShop
+os.name=Windows 11
+os.arch=amd64
+os.version=10.0
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''
