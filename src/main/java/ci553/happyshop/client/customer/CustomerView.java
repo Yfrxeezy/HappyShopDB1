@@ -90,13 +90,24 @@ public class CustomerView  {
         tfId.setPromptText("Search Product or ID");
         tfId.setStyle(UIStyle.textFiledStyle);
 
-        tfId.textProperty().addListener((obs, o, n) -> {
+        Button btnSearch = new Button ("\uD83D\uDD0D");
+        btnSearch.setPrefWidth(30);
+        btnSearch.setStyle("""
+        -fx-background-color: #D3D3D3;
+        -fx-text-fill: black;
+        -fx-font-weight: bold;
+        """);
+
+        btnSearch.setOnAction(e -> {
             try {
-                cusController.searchProducts(n);
-            } catch (SQLException e) {
-                e.printStackTrace();
+                cusController.searchProducts(tfId.getText().trim());
+            } catch (SQLException ex) {
+                ex.printStackTrace();
             }
         });
+
+        HBox hbSearch = new HBox(5,tfId, btnSearch);
+        hbSearch.setAlignment(Pos.CENTER);
 
         lbResultCount = new Label("0 products Found");
         lbResultCount.setStyle("-fx-text-fill: red; -fx-font-size: 12px;");
@@ -129,7 +140,7 @@ public class CustomerView  {
         VBox vbSearchPage = new VBox(
                 10,
                 laPageTitle,
-                tfId,
+                hbSearch,
                 lbResultCount,
                 spResults,
                 hbPreview
@@ -222,7 +233,12 @@ public class CustomerView  {
         hbBtns.setStyle("-fx-padding: 15px;");
         hbBtns.setAlignment(Pos.CENTER);
 
-        return new VBox(10, laPageTitle, sp, lbTotalPrice, hbBtns);
+        VBox trolleyBox = new VBox(10, laPageTitle, sp, lbTotalPrice, hbBtns);
+
+        trolleyBox.setAlignment(Pos.TOP_CENTER);
+        trolleyBox.setPrefWidth(COLUMN_WIDTH);
+
+        return trolleyBox;
     }
 
     private HBox createTrolleyRow(Product p) {
@@ -241,15 +257,19 @@ public class CustomerView  {
                 cusController.updateTrolleyQuantity(p, newVal)
         );
 
-        Button del = new Button("🗑️");
-        del.setOnAction(e -> cusController.removeFromTrolley(p));
+        Button btnDel = new Button("\uD83D\uDDD1\uFE0F");
+        btnDel.setOnAction(e -> cusController.removeFromTrolley(p));
+        btnDel.setStyle("""
+        -fx-background-color: #D3D3D3;
+        -fx-text-fill: red;
+        """);
 
         Label total = new Label(
                 "£" + String.format("%.2f",
                         p.getUnitPrice() * p.getOrderedQuantity())
         );
 
-        HBox row = new HBox(10, name, qtySpinner, del, total);
+        HBox row = new HBox(10, name, qtySpinner, btnDel, total);
         row.setAlignment(Pos.CENTER_LEFT);
         row.setStyle("-fx-border-width: 0 0 1 0; -fx-border-color: #eee;");
 
