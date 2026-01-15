@@ -190,12 +190,12 @@ public class CustomerView  {
 
         obeTrolleyList = FXCollections.observableArrayList();
 
-        obrLvTrolley = new ListView<>(obeProductList); //updates the list from the observer
+        obrLvTrolley = new ListView<>(obeTrolleyList); //updates the list from the observer
         obrLvTrolley.setPrefHeight(HEIGHT - 100);
         obrLvTrolley.setFixedCellSize(50);
         obrLvTrolley.setStyle(UIStyle.listViewStyle);
 
-        obrLvProducts.setCellFactory(param -> new ListCell<Product>() {
+        obrLvTrolley.setCellFactory(param -> new ListCell<Product>() {
                     @Override
                     protected void updateItem(Product product, boolean empty) {
                         super.updateItem(product, empty);
@@ -211,10 +211,12 @@ public class CustomerView  {
                 });
 
         Button btnCancel = new Button("Cancel");
+        btnCancel.setUserData("Cancel");
         btnCancel.setOnAction(this::buttonClicked);
         btnCancel.setStyle(UIStyle.buttonStyle);
 
         Button btnCheckout = new Button("Check Out");
+        btnCancel.setUserData("Check Out");
         btnCheckout.setOnAction(this::buttonClicked);
         btnCheckout.setStyle(UIStyle.buttonStyle);
 
@@ -272,12 +274,11 @@ public class CustomerView  {
 
         Button btnAdd = new Button("\uD83D\uDED2");
         btnAdd.setPrefSize(35, 33);
-        btnAdd.setOnAction(this::buttonClicked);
+        btnAdd.setOnAction(actionEvent -> {
+            cusController.addProductToTrolley(product, comboQ.getValue());
+        });
         btnAdd.getProperties().put("Add To Trolley", Arrays.asList(product, comboQ.getValue()));
 
-        comboQ.valueProperty().addListener((obs, oldVal, newVal) -> {
-        btnAdd.getProperties().put("Add To Trolley", Arrays.asList(product, comboQ.getValue()));
-        });
         HBox HBMiddle = new HBox(5,lPrice, lId);
         HBMiddle.setAlignment(Pos.CENTER_LEFT);
         VBox vbTop = new VBox(0, lDetail, HBMiddle, laStock);
@@ -358,8 +359,13 @@ public class CustomerView  {
             Button btn = (Button)event.getSource();
             String action = (String) btn.getUserData();
 
+            if (action == null) {
+                action = btn.getText();
+            }
+
             if(action.equals("OK & Close")){
                 showTrolleyOrReceiptPage(vbTrolleyPage);
+                return;
             }
             cusController.doAction(action);
         }

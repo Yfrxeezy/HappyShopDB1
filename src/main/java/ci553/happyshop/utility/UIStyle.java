@@ -59,10 +59,10 @@ public record UIStyle() {
             "fx-text-fill: yellow;";
 
     public static final String labelInStockStyle = "-fx-font-size: 8px; " +
-            "fx-text-fill: green;";
+            "fx-text-fill: #008000;";
 
-    public static final String labelPriceStyle= "-fx-font-size: 10px; " +
-            "fx-text-fill: green;";
+    public static final String labelPriceStyle= "-fx-font-size: 15px; " +
+            "fx-text-fill: #008000;";
 
     public static final String labelIdStyle = "-fx-font-size: 10px; " +
             "fx-text-fill: pink;";
