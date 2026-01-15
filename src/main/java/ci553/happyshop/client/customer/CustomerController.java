@@ -31,9 +31,11 @@ public class CustomerController {
         cusModel.addToTrolley();
     }
     public void removeFromTrolley(Product p) {
+
         cusModel.removeProduct(p);
     }
     public void updateTrolleyQuantity(Product p, int qty) {
+
         cusModel.updateQuantity(p, qty);
     }
 }

@@ -61,6 +61,7 @@ public class CustomerView  {
     private ObservableList<Product> obeProductList;
     private ObservableList<Product> obeTrolleyList;
     private TextArea taReceipt;//in receipt page
+    private HBox hbSearch;
 
     // Holds a reference to this CustomerView window for future access and management
     // (e.g., positioning the removeProductNotifier when needed).
@@ -68,7 +69,7 @@ public class CustomerView  {
 
     public void start(Stage window) {
         VBox vbSearchPage = createSearchPage();
-        vbTrolleyPage = CreateTrolleyPage();
+        vbTrolleyPage = createTrolleyPage();
         vbReceiptPage = createReceiptPage();
 
         // Create a divider line
@@ -107,7 +108,13 @@ public class CustomerView  {
         -fx-text-fill: black;
         -fx-font-weight: bold;
         """);
-        btnSearch.setOnAction(this::buttonClicked);
+        btnSearch.setOnAction(actionEvent -> {
+                    try {
+                        cusController.searchProducts(tfId.getText().trim());
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+        });
         btnSearch.getProperties().put("search", null);
 
         HBox hbSearch = new HBox(5,tfId, btnSearch);
@@ -147,11 +154,6 @@ public class CustomerView  {
             }
         });
 
-        ScrollPane spResults = new ScrollPane(vbSearchResults);
-        spResults.setFitToWidth(true);
-        spResults.setPrefHeight(220);
-        spResults.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-
         ivProduct = new ImageView("imageHolder.jpg");
         ivProduct.setFitHeight(60);
         ivProduct.setFitWidth(60);
@@ -162,10 +164,10 @@ public class CustomerView  {
         lbProductInfo.setWrapText(true);
         lbProductInfo.setStyle(UIStyle.labelMulLineStyle);
 
-        HBox hbPreview = new HBox(10, ivProduct, lbProductInfo);
-        hbPreview.setAlignment(Pos.CENTER_LEFT);
+        HBox previewBox = new HBox(10, ivProduct, lbProductInfo);
+        previewBox.setAlignment(Pos.CENTER_LEFT);
 
-        VBox vbSearchPage = new VBox(10, laPageTitle, hbSearch, lbResultCount, spResults, hbPreview, obrLvProducts);
+        VBox vbSearchPage = new VBox(10, laPageTitle, hbSearch, lbResultCount,obrLvProducts,previewBox);
         vbSearchPage.setPrefWidth(COLUMN_WIDTH);
         vbSearchPage.setAlignment(Pos.TOP_CENTER);
         vbSearchPage.setStyle("-fx-padding: 15px;");
@@ -173,7 +175,7 @@ public class CustomerView  {
         return vbSearchPage;
     }
 
-    private VBox CreateTrolleyPage() {
+    private VBox createTrolleyPage() {
         Label laPageTitle = new Label("🛒🛒  Trolley 🛒🛒");
         laPageTitle.setStyle(UIStyle.labelTitleStyle);
 
@@ -354,7 +356,7 @@ public class CustomerView  {
     private void buttonClicked(ActionEvent event) {
         try{
             Button btn = (Button)event.getSource();
-            String action = btn.getText();
+            String action = (String) btn.getUserData();
 
             if(action.equals("OK & Close")){
                 showTrolleyOrReceiptPage(vbTrolleyPage);

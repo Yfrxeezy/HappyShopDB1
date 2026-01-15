@@ -100,6 +100,7 @@ public class CustomerModel {
         updateView();
     }
 
+    //To set the added items to the trolley in order from 1 to 10 (ID)
     void makeOrganizedTrolley(){
         for(Product p: trolley){
             if(p.getProductId().equals(theProduct.getProductId())){
