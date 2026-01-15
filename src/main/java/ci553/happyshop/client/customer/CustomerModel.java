@@ -19,6 +19,7 @@ import java.util.*;
  * or create a subclass of CustomerModel and override specific methods where appropriate.
  */
 public class CustomerModel {
+    public RemoveProductNotifier proNotifier;
     public CustomerView cusView;
     public DatabaseRW databaseRW; //Interface type, not specific implementation
                                   //Benefits: Flexibility: Easily change the database implementation.
@@ -150,22 +151,18 @@ public class CustomerModel {
                 System.out.println(displayTaReceipt);
             }
             else{ // Some products have insufficient stock — build an error message to inform the customer
+                displayLaSearchResult = "Checkout Failed Due To Insufficient Stock";
                 StringBuilder errorMsg = new StringBuilder();
                 for(Product p : insufficientProducts){
+                    //Removing the product with insufficient stock from the trolley list
+                    trolleyList.remove(p);
+                    //Producing the error format for the error message
                     errorMsg.append("\u2022 "+ p.getProductId()).append(", ")
                             .append(p.getProductDescription()).append(" (Only ")
                             .append(p.getStockQuantity()).append(" available, ")
                             .append(p.getOrderedQuantity()).append(" requested)\n");
                 }
-                theProduct=null;
-
-                //TODO
-                // Add the following logic here:
-                // 1. Remove products with insufficient stock from the trolley.
-                // 2. Trigger a message window to notify the customer about the insufficient stock, rather than directly changing displayLaSearchResult.
-                //You can use the provided RemoveProductNotifier class and its showRemovalMsg method for this purpose.
-                //remember close the message window where appropriate (using method closeNotifierWindow() of RemoveProductNotifier class)
-                displayLaSearchResult = "Checkout failed due to insufficient stock for the following products:\n" + errorMsg.toString();
+                proNotifier.showRemovalMsg(errorMsg.toString());
                 System.out.println("stock is not enough");
             }
         }

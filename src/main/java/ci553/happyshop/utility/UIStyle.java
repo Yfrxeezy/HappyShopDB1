@@ -52,6 +52,21 @@ public record UIStyle() {
             "-fx-text-fill: black; " +
             "-fx-background-color: lightblue;";
 
+    public static final String labelLOutOfStockStyle = "-fx-font-size: 12px; " +
+            "fx-text-fill: red;";
+
+    public static final String labelLowStockStyle = "-fx-font-size: 12px; " +
+            "fx-text-fill: Yellow;";
+
+    public static final String labelInStockStyle = "-fx-font-size: 12px; " +
+            "fx-text-fill: Green;";
+
+    public static final String labelPriceStyle= "-fx-font-size: 10px; " +
+            "fx-text-fill: Green;";
+
+    public static final String labelIdStyle = "-fx-font-size: 10px; " +
+            "fx-text-fill: Pink;";
+
     public static final String comboBoxStyle ="-fx-font-weight: bold; " +
             "-fx-font-size: 14px;";
 

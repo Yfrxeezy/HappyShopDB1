@@ -5,6 +5,8 @@ import ci553.happyshop.utility.StorageLocation;
 import ci553.happyshop.utility.UIStyle;
 import ci553.happyshop.utility.WinPosManager;
 import ci553.happyshop.utility.WindowBounds;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -18,7 +20,10 @@ import javafx.scene.shape.Line;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -42,6 +47,9 @@ public class CustomerView  {
     public TextField tfId; //for user input on the search page. Made accessible so it can be accessed or modified by CustomerModel
     TextField tfName; //for user input on the search page. Made accessible so it can be accessed by CustomerModel
 
+    ListView<Product> obrLvProducts;
+    ListView<Product>obrLvTrolley;
+
     private VBox vbSearchResults; //creates a virtualbox for search results
     private Label lbResultCount; //for it to grab the search result of the item
 
@@ -50,6 +58,8 @@ public class CustomerView  {
     private Label lbProductInfo;//product text info in searchPage
     private VBox vbTrolleyItems; //in trolley Page
     private Label lbTotalPrice;
+    private ObservableList<Product> obeProductList;
+    private ObservableList<Product> obeTrolleyList;
     private TextArea taReceipt;//in receipt page
 
     // Holds a reference to this CustomerView window for future access and management
@@ -97,27 +107,45 @@ public class CustomerView  {
         -fx-text-fill: black;
         -fx-font-weight: bold;
         """);
-
-        btnSearch.setOnAction(e -> {
-            try {
-                cusController.searchProducts(tfId.getText().trim());
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-        });
+        btnSearch.setOnAction(this::buttonClicked);
+        btnSearch.getProperties().put("search", null);
 
         HBox hbSearch = new HBox(5,tfId, btnSearch);
         hbSearch.setAlignment(Pos.CENTER);
 
         lbResultCount = new Label("0 products Found");
-        lbResultCount.setStyle("-fx-text-fill: red; -fx-font-size: 12px;");
+        lbResultCount.setStyle("-fx-text-fill: red; -fx-font-size: 12px; -fx-font-weight: bold;");
+        lbResultCount.setStyle(UIStyle.labelStyle);
 
         vbSearchResults = new VBox(5);
         vbSearchResults.setStyle("""
         -fx-background-color: white;
-        -fx-border-color: #ccc;
+        -fx-border-color: light gray;
         -fx-padding-color: 5;
         """);
+
+        obeProductList = FXCollections.observableArrayList();
+
+        //Listview of displaying products with appealing UI
+        obrLvProducts = new ListView<>(obeProductList); //updates the list from the observer
+        obrLvProducts.setPrefHeight(HEIGHT - 100);
+        obrLvProducts.setFixedCellSize(50);
+        obrLvProducts.setStyle(UIStyle.listViewStyle);
+
+        obrLvProducts.setCellFactory(param -> new ListCell<Product>() {
+            @Override
+            protected void updateItem(Product product, boolean empty) {
+                super.updateItem(product, empty);
+
+                if (empty || product == null) {
+                    setGraphic(null);
+                } else {
+                    HBox hbProItem = createProductItem(product);
+                    hbProItem.setAlignment(Pos.CENTER);
+                    setGraphic(hbProItem);
+                }
+            }
+        });
 
         ScrollPane spResults = new ScrollPane(vbSearchResults);
         spResults.setFitToWidth(true);
@@ -137,75 +165,12 @@ public class CustomerView  {
         HBox hbPreview = new HBox(10, ivProduct, lbProductInfo);
         hbPreview.setAlignment(Pos.CENTER_LEFT);
 
-        VBox vbSearchPage = new VBox(
-                10,
-                laPageTitle,
-                hbSearch,
-                lbResultCount,
-                spResults,
-                hbPreview
-        );
+        VBox vbSearchPage = new VBox(10, laPageTitle, hbSearch, lbResultCount, spResults, hbPreview, obrLvProducts);
         vbSearchPage.setPrefWidth(COLUMN_WIDTH);
         vbSearchPage.setAlignment(Pos.TOP_CENTER);
         vbSearchPage.setStyle("-fx-padding: 15px;");
 
         return vbSearchPage;
-    }
-
-    //Product Rows
-    private HBox createProductRow(Product p) {
-
-        String imgPath = StorageLocation.imageFolder + p.getProductImageName();
-        Image img = new Image(
-                new java.io.File(imgPath).toURI().toString(),
-                40,40, true, true
-        );
-        ImageView iv = new ImageView(img);
-        iv.setFitWidth(40);
-        iv.setFitHeight(40);
-        iv.setPreserveRatio(true);
-
-        Label lbInfo = new Label(
-                p.getProductDescription() +
-                        "\n£" + String.format("%.2f", p.getUnitPrice())
-        );
-        lbInfo.setStyle("-fx-font-style: 12px");
-
-        ComboBox<Integer> cbQty = new ComboBox<>();
-        for (int i = 1; i <= Math.min(10, p.getStockQuantity()); i++) {
-            cbQty.getItems().add(i);
-        }
-        cbQty.setValue(1);
-        cbQty.setPrefWidth(55);
-
-        Button btnAdd = new Button("+");
-        btnAdd.setStyle("""
-        -fx-background-color: #4CAF50;
-        -fx-text-fill: white;
-        -fx-font-weight: bold;""");
-
-        btnAdd.setOnAction(e ->
-                cusController.addProductToTrolley(p, cbQty.getValue())
-        );
-
-        HBox row = new HBox(10, iv, lbInfo, cbQty, btnAdd);
-        row.setAlignment(Pos.CENTER_LEFT);
-        row.setStyle("""
-       -fx-padding: 5;
-       -fx-border-color: #eee;
-       -fx-border-width: 0 0 1 0;
-       """);
-
-        return row;
-    }
-
-    public void updateSearchResults(List<Product> products) {
-        vbSearchResults.getChildren().clear();
-        lbResultCount.setText(products.size() + "products found");
-
-        for (Product p : products) {
-            vbSearchResults.getChildren().add(createProductRow(p));
-        }
     }
 
     private VBox CreateTrolleyPage() {
@@ -221,6 +186,28 @@ public class CustomerView  {
         lbTotalPrice = new Label("Total Price: £0.00");
         lbTotalPrice.setStyle("-fx-font-weight: bold;");
 
+        obeTrolleyList = FXCollections.observableArrayList();
+
+        obrLvTrolley = new ListView<>(obeProductList); //updates the list from the observer
+        obrLvTrolley.setPrefHeight(HEIGHT - 100);
+        obrLvTrolley.setFixedCellSize(50);
+        obrLvTrolley.setStyle(UIStyle.listViewStyle);
+
+        obrLvProducts.setCellFactory(param -> new ListCell<Product>() {
+                    @Override
+                    protected void updateItem(Product product, boolean empty) {
+                        super.updateItem(product, empty);
+
+                        if (empty || product == null) {
+                            setGraphic(null);
+                        } else {
+                            HBox hbProItem = createTrolleyItem(product);
+                            hbProItem.setAlignment(Pos.CENTER);
+                            setGraphic(hbProItem);
+                        }
+                    }
+                });
+
         Button btnCancel = new Button("Cancel");
         btnCancel.setOnAction(this::buttonClicked);
         btnCancel.setStyle(UIStyle.buttonStyle);
@@ -234,14 +221,71 @@ public class CustomerView  {
         hbBtns.setAlignment(Pos.CENTER);
 
         VBox trolleyBox = new VBox(10, laPageTitle, sp, lbTotalPrice, hbBtns);
-
         trolleyBox.setAlignment(Pos.TOP_CENTER);
         trolleyBox.setPrefWidth(COLUMN_WIDTH);
 
         return trolleyBox;
     }
 
-    private HBox createTrolleyRow(Product p) {
+    private HBox createProductItem(Product product) {
+        String imageName = product.getProductImageName(); // Get image name (e.g. "0001.jpg")
+        String relativeImageUrl = StorageLocation.imageFolder + imageName;
+        Path imageFullPath = Paths.get(relativeImageUrl).toAbsolutePath();
+        String imageFullUri = imageFullPath.toUri().toString();// Build the full image Uri
+        ImageView ivPro;
+        try {
+            ivPro = new ImageView(new Image(imageFullUri, 50, 45, true, true)); // Attempt to load the product image
+        } catch (Exception e) {
+            // If loading fails, use a default image directly from the resources folder
+            ivPro = new ImageView(new Image("imageHolder.jpg", 50, 45, true, true)); // Directly load from resources
+        }
+        Label laStock = new Label("Pending Stock");
+
+        int stockQuantity = product.getStockQuantity() - product.getOrderedQuantity();
+        if (stockQuantity <= 30 && stockQuantity >= 1) {
+            //Low Stock Quantity
+            laStock.setStyle(UIStyle.labelLowStockStyle);
+            laStock.setText("⚠ Low Stock" + stockQuantity);
+        } else if (stockQuantity <= 0) {
+            laStock.setStyle(UIStyle.labelLOutOfStockStyle);
+            laStock.setText("❌ Out Of Stock");
+        } else {
+            laStock.setStyle(UIStyle.labelInStockStyle);
+            laStock.setText("✅ In Stock");
+        }
+        Label lDetail = new Label(product.getProductDescription());
+        Label lId = new Label(product.getProductId());
+        Label lPrice = new Label("£" + product.getUnitPrice());
+        lPrice.setStyle(UIStyle.labelPriceStyle);
+        lId.setStyle(UIStyle.labelIdStyle);
+
+        ComboBox<Integer> comboQ = new ComboBox<>();
+        comboQ.setPrefSize(65, 33);
+        for (int i = 1; i <= 10; i++) {
+            if (i == 1) {
+                comboQ.setValue(i);
+            }
+            comboQ.getItems().add(i);
+        }
+
+        Button btnAdd = new Button("\uD83D\uDED2");
+        btnAdd.setPrefSize(35, 33);
+        btnAdd.setOnAction(this::buttonClicked);
+        btnAdd.getProperties().put("Add To Trolley", Arrays.asList(product, comboQ.getValue()));
+
+        comboQ.valueProperty().addListener((obs, oldVal, newVal) -> {
+        btnAdd.getProperties().put("Add To Trolley", Arrays.asList(product, comboQ.getValue()));
+        });
+        HBox HBMiddle = new HBox(5,lPrice, lId);
+        HBMiddle.setAlignment(Pos.CENTER_LEFT);
+        VBox vbTop = new VBox(0, lDetail, HBMiddle, laStock);
+        vbTop.setAlignment(Pos.CENTER_LEFT);
+        HBox hbRight = new HBox(5, comboQ, btnAdd);
+        hbRight.setAlignment(Pos.CENTER);
+        return new HBox(10, ivPro, vbTop, hbRight);
+    }
+
+    private HBox createTrolleyItem(Product p) {
         Label name = new Label(
                 p.getProductId() + " " + p.getProductDescription() +" £" + String.format("%.2f",p.getUnitPrice())
         );
@@ -271,7 +315,7 @@ public class CustomerView  {
 
         HBox row = new HBox(10, name, qtySpinner, btnDel, total);
         row.setAlignment(Pos.CENTER_LEFT);
-        row.setStyle("-fx-border-width: 0 0 1 0; -fx-border-color: #eee;");
+        row.setStyle("-fx-border-width: 0 0 1 0; -fx-border-color: white gray;");
 
         return row;
     }
@@ -281,7 +325,7 @@ public class CustomerView  {
         double sum = 0;
 
         for (Product p : trolley) {
-            vbTrolleyItems.getChildren().add(createTrolleyRow(p));
+            vbTrolleyItems.getChildren().add(createTrolleyItem(p));
             sum += p.getUnitPrice() * p.getOrderedQuantity();
         }
         lbTotalPrice.setText(
@@ -336,6 +380,17 @@ public class CustomerView  {
         } else {
             showTrolleyOrReceiptPage(vbTrolleyPage);
         }
+    }
+
+    public void updateSearchResults(List<Product> products) {
+        obeProductList.clear();
+
+        if(products == null || products.isEmpty()) {
+            lbResultCount.setText("0 products found");
+            return;
+        }
+        obeProductList.addAll(products);
+        lbResultCount.setText(products.size() + "products found");
     }
 
     // Replaces the last child of hbRoot with the specified page.

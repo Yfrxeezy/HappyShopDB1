@@ -194,7 +194,7 @@ public class WarehouseView  {
 
         // data, an observable ArrayList, observed by obrLvProducts
         obeProductList = FXCollections.observableArrayList();
-        obrLvProducts = new ListView<>(obeProductList);//ListView proListView observes proList
+        obrLvProducts = new ListView<>(obeProductList); //updates the list from the observer
         obrLvProducts.setPrefHeight(HEIGHT - 100);
         obrLvProducts.setFixedCellSize(50);
         obrLvProducts.setStyle(UIStyle.listViewStyle);
