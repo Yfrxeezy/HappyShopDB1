@@ -59,10 +59,10 @@ public record UIStyle() {
             "fx-text-fill: yellow;";
 
     public static final String labelInStockStyle = "-fx-font-size: 8px; " +
-            "fx-text-fill: #008000;";
+            "fx-text-fill: green;";
 
     public static final String labelPriceStyle= "-fx-font-size: 15px; " +
-            "fx-text-fill: #008000;";
+            "fx-text-fill: black;";
 
     public static final String labelIdStyle = "-fx-font-size: 10px; " +
             "fx-text-fill: pink;";
@@ -70,7 +70,10 @@ public record UIStyle() {
     public static final String comboBoxStyle ="-fx-font-weight: bold; " +
             "-fx-font-size: 14px;";
 
-    public static final String buttonStyle= "-fx-font-size: 15";
+    public static final String buttonStyle= "-fx-font-size: 15px";
+
+    public static final String delStyle = "-fx-font-size: 10px; " +
+            "-fx-background-color: red;";
 
     public static final String rootStyle = "-fx-padding: 8px; " +
             "-fx-background-color: lightgreen";

@@ -306,10 +306,7 @@ public class CustomerView  {
 
         Button btnDel = new Button("\uD83D\uDDD1\uFE0F");
         btnDel.setOnAction(e -> cusController.removeFromTrolley(p));
-        btnDel.setStyle("""
-        -fx-background-color: #D3D3D3;
-        -fx-text-fill: red;
-        """);
+        btnDel.setStyle(UIStyle.delStyle);
 
         Label total = new Label(
                 "£" + String.format("%.2f",
